@@ -2,16 +2,18 @@
 // 21/08 - 17:39 - 19:40 = letra a, b e c da primeira questão.
 // 22/08 - 16:00 - 18:24 = só tentativas, não consegui nada.
 // 29/08 - 19:55 - 21:30 = questão BCD e Complemento a 2.
-// 30/08 - 14:55 - x = questão 3.
+// 30/08 - 14:55 - 18:24 = questão 3.
 
 // binario OK
 // octal OK
 // hexadecimal OK
 // BCD OK
-// Complemento a 2 OK?
+// Complemento a 2 OK
+// float double OK
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 int main(){
     int num, escolha, binario[32], octal[32], hexa[32], i = 0;
@@ -260,54 +262,230 @@ int main(){
         printf("%s\n\n", conversao);
         printf("BCD: %s\n\n", sequencia);
     }
-    if (escolha == 5) {
-    int i = 0;
-    int binary[16] = {0};
-    int is_negative = 0;
+    if (escolha == 5) { // 16 bits complemento a 2
+        int i = 0;
+        int binary[16] = {0};
+        int is_negative = 0;
 
-    // Se o número for negativo, converte p positivo
-    if (num < 0) {
-        num = -num;
-        is_negative = 1;
-    }
-
-    // Conversão do número para binário (16 bits)
-    while (num > 0 && i < 16) {
-        binary[i] = num % 2;
-        printf("Divisao %d: Resultado = %d, Resto = %d\n", i + 1, num / 2, binary[i]);
-        num = num / 2;
-        i++;
-    }
-
-    if (is_negative) {
-        // Complemento a 1
-        for (int j = 0; j < 16; j++) {
-            binary[j] = binary[j] == 0 ? 1 : 0;
+        // Se o número for negativo, converte para positivo
+        if (num < 0) {
+            num = -num;
+            is_negative = 1;
         }
 
-        printf("Complemento a 1: ");
+        // Conversão do número para binário (16 bits)
+        while (num > 0 && i < 16) {
+            binary[i] = num % 2;
+            printf("Divisao %d: Resultado = %d, Resto = %d\n", i + 1, num / 2, binary[i]);
+            num = num / 2;
+            i++;
+        }
+
+        if (is_negative) {
+            // Complemento a 1
+            for (int j = 0; j < 16; j++) {
+                binary[j] = binary[j] == 0 ? 1 : 0;
+            }
+
+            printf("Complemento a 1: ");
+            for (int j = 15; j >= 0; j--) {
+                printf("%d", binary[j]);
+            }
+            printf("\n");
+
+            // Adicionar 1 para obter o complemento a 2
+            int carry = 1;
+            for (int j = 0; j < 16; j++) {
+                int sum = binary[j] + carry;
+                binary[j] = sum % 2;
+                carry = sum / 2;
+            }
+        }
+
+        printf("O numero em complemento a 2 (16 bits): ");
         for (int j = 15; j >= 0; j--) {
             printf("%d", binary[j]);
         }
         printf("\n");
-
-        // Adicionar 1 para obter o complemento a 2
-        int carry = 1;
-        for (int j = 0; j < 16; j++) {
-            int sum = binary[j] + carry;
-            binary[j] = sum % 2;
-            carry = sum / 2;
-        }
-    }
-
-    printf("O numero em complemento a 2 (16 bits): ");
-    for (int j = 15; j >= 0; j--) {
-        printf("%d", binary[j]);
     }
     printf("\n");
-}
-if (escolha == 5){
-    
-}
+
+    if (escolha == 6) { // Real -> decimal, float & double
+        float num_float;
+        double num_double;
+        char output[1024] = "";  // Buffer para armazenar a saída
+        char temp[256];          // Buffer temporário
+        char binaryStr[128] = "";  // Armazena a representação binária
+        int isNegative = 0, exponent = 0;  // Indica se o número é negativo e o expoente
+        double fractionPart, integerPart;
+
+        printf("Digite um número float: ");
+        scanf("%f", &num_float);
+
+        // Conversão do número float para binário (IEEE 754)
+        printf("\nConvertendo numero float (%f) para ponto flutuante binario:\n", num_float);
+
+        // Determina o sinal do número
+        if (num_float < 0) {
+            isNegative = 1;
+            num_float = -num_float;  // Converte para positivo
+        }
+
+        // Separa parte inteira e fracionária
+        fractionPart = modf(num_float, &integerPart);
+        printf("Parte inteira: %.0f, Parte fracionaria: %f\n", integerPart, fractionPart);
+
+        // Converte a parte inteira para binário
+        printf("Convertendo parte inteira para binario...\n");
+        i = 0;
+        while (integerPart > 0) {
+            binario[i] = (int)integerPart % 2;
+            integerPart = (int)integerPart / 2;
+            i++;
+        }
+
+        // Constrói a string binária da parte inteira
+        for (int j = i - 1; j >= 0; j--) {
+            snprintf(temp, sizeof(temp), "%d", binario[j]);
+            strncat(binaryStr, temp, sizeof(binaryStr) - strlen(binaryStr) - 1);
+        }
+        
+        strncat(binaryStr, ".", sizeof(binaryStr) - strlen(binaryStr) - 1);
+        
+        // Converte a parte fracionária para binário
+        printf("Convertendo parte fracionaria para binario...\n");
+        while (fractionPart > 0.0 && strlen(binaryStr) < sizeof(binaryStr) - 1) {
+            fractionPart *= 2;
+            snprintf(temp, sizeof(temp), "%d", (int)fractionPart);
+            strncat(binaryStr, temp, sizeof(binaryStr) - strlen(binaryStr) - 1);
+            if (fractionPart >= 1.0) {
+                fractionPart -= 1.0;
+            }
+        }
+
+        // Normaliza o número
+        printf("Normalizando o numero binario...\n");
+        int pointPosition = strchr(binaryStr, '.') - binaryStr;
+        if (binaryStr[0] == '1') {
+            exponent = strlen(binaryStr) - pointPosition - 1;
+            memmove(&binaryStr[pointPosition], &binaryStr[pointPosition + 1], strlen(&binaryStr[pointPosition + 1]) + 1);
+        } else {
+            exponent = -1;
+            while (binaryStr[++exponent] != '1' && strlen(binaryStr) < sizeof(binaryStr) - 1) {}
+            memmove(&binaryStr[exponent], &binaryStr[exponent + 1], strlen(&binaryStr[exponent + 1]) + 1);
+            exponent = -exponent;
+        }
+
+        printf("Numero normalizado: %s\n", binaryStr);
+        printf("Expoente calculado: %d\n", exponent);
+
+        // Armazena a saída formatada
+        snprintf(temp, sizeof(temp), "\nFloat Binario Normalizado: %s\nExpoente: 2^%d\n\n", binaryStr, exponent);
+        strncat(output, temp, sizeof(output) - strlen(output) - 1);
+
+        // Calcula o expoente com viés
+        int floatExponent = 127 + exponent;
+        char exponentBin[12] = "";
+        i = 0;
+        while (floatExponent > 0 && strlen(exponentBin) < sizeof(exponentBin) - 1) {
+            snprintf(temp, sizeof(temp), "%d", floatExponent % 2);
+            strncat(exponentBin, temp, sizeof(exponentBin) - strlen(exponentBin) - 1);
+            floatExponent /= 2;
+        }
+
+        // Adiciona a parte do expoente à saída
+        snprintf(temp, sizeof(temp), "FLOAT (IEEE 754):\nSinal: %d\nExpoente (com viés 127): %d (Binário: %s)\nMantissa: %s\n",
+                isNegative, 127 + exponent, exponentBin, binaryStr);
+        strncat(output, temp, sizeof(output) - strlen(output) - 1);
+
+        // Exibe toda a saída formatada
+        printf("%s", output);
+
+        printf("\nDigite um número double: ");
+        scanf("%lf", &num_double);
+
+        // Conversão do número double para binário (IEEE 754)
+        printf("\nConvertendo número double (%lf) para ponto flutuante binário:\n", num_double);
+        strcpy(output, "");  // Limpa o buffer para armazenar a nova saída
+        strcpy(binaryStr, "");  // Limpa a string binária
+        isNegative = 0;
+        exponent = 0;
+
+        // Determina o sinal do número
+        if (num_double < 0) {
+            isNegative = 1;
+            num_double = -num_double;  // Converte para positivo
+        }
+
+        // Separa parte inteira e fracionária
+        fractionPart = modf(num_double, &integerPart);
+        printf("Parte inteira: %.0f, Parte fracionária: %f\n", integerPart, fractionPart);
+
+        // Converte a parte inteira para binário
+        printf("Convertendo parte inteira para binario...\n");
+        i = 0;
+        while (integerPart > 0) {
+            binario[i] = (int)integerPart % 2;
+            integerPart = (int)integerPart / 2;
+            i++;
+        }
+
+        // Constrói a string binária da parte inteira
+        for (int j = i - 1; j >= 0; j--) {
+            snprintf(temp, sizeof(temp), "%d", binario[j]);
+            strncat(binaryStr, temp, sizeof(binaryStr) - strlen(binaryStr) - 1);
+        }
+        
+        strncat(binaryStr, ".", sizeof(binaryStr) - strlen(binaryStr) - 1);
+        
+        // Converte a parte fracionária para binário
+        printf("Convertendo parte fracionaria para binario...\n");
+        while (fractionPart > 0.0 && strlen(binaryStr) < sizeof(binaryStr) - 1) {
+            fractionPart *= 2;
+            snprintf(temp, sizeof(temp), "%d", (int)fractionPart);
+            strncat(binaryStr, temp, sizeof(binaryStr) - strlen(binaryStr) - 1);
+            if (fractionPart >= 1.0) {
+                fractionPart -= 1.0;
+            }
+        }
+
+        // Normaliza o número
+        printf("Normalizando o número binario...\n");
+        pointPosition = strchr(binaryStr, '.') - binaryStr;
+        if (binaryStr[0] == '1') {
+            exponent = strlen(binaryStr) - pointPosition - 1;
+            memmove(&binaryStr[pointPosition], &binaryStr[pointPosition + 1], strlen(&binaryStr[pointPosition + 1]) + 1);
+        } else {
+            exponent = -1;
+            while (binaryStr[++exponent] != '1' && strlen(binaryStr) < sizeof(binaryStr) - 1) {}
+            memmove(&binaryStr[exponent], &binaryStr[exponent + 1], strlen(&binaryStr[exponent + 1]) + 1);
+            exponent = -exponent;
+        }
+
+        printf("Número normalizado: %s\n", binaryStr);
+        printf("Expoente calculado: %d\n", exponent);
+
+        // Armazena a saída formatada
+        snprintf(temp, sizeof(temp), "\nDouble Binario Normalizado: %s\nExpoente: 2^%d\n\n", binaryStr, exponent);
+        strncat(output, temp, sizeof(output) - strlen(output) - 1);
+
+        // Calcula o expoente com viés
+        int doubleExponent = 1023 + exponent;
+        char exponentBinDouble[12] = "";
+        i = 0;
+        while (doubleExponent > 0 && strlen(exponentBinDouble) < sizeof(exponentBinDouble) - 1) {
+            snprintf(temp, sizeof(temp), "%d", doubleExponent % 2);
+            strncat(exponentBinDouble, temp, sizeof(exponentBinDouble) - strlen(exponentBinDouble) - 1);
+            doubleExponent /= 2;
+        }
+
+        // Adiciona a parte do expoente à saída
+        snprintf(temp, sizeof(temp), "DOUBLE (IEEE 754):\nSinal: %d\nExpoente (com vies 1023): %d (Binario: %s)\nNormalizado: %s\n",
+                isNegative, 1023 + exponent, exponentBinDouble, binaryStr);
+        strncat(output, temp, sizeof(output) - strlen(output) - 1);
+
+        printf("%s", output);
+    }
+
     return 0;
 }
