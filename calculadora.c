@@ -4,6 +4,12 @@
 // 29/08 - 19:55 - 21:30 = questão BCD e Complemento a 2.
 // 30/08 - 14:55 - x = questão 3.
 
+// binario OK
+// octal OK
+// hexadecimal OK
+// BCD OK
+// Complemento a 2 OK?
+
 #include <stdio.h>
 #include <string.h>
 
@@ -66,7 +72,6 @@ int main(){
     printf("\n");
 
     if (escolha == 4){ // BCD
-        int num = num;
         char sequencia[64] = "", str2[64] = "";
         char str3[64] = "", conversao[64] = "";
         int c = 0;
@@ -300,6 +305,9 @@ int main(){
         printf("%d", binary[j]);
     }
     printf("\n");
+}
+if (escolha == 5){
+    
 }
     return 0;
 }
